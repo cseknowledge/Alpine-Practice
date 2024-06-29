@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single Image Finder</title>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"
+      defer
+    ></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      .search-container {
+        margin-bottom: 20px;
+      }
+      .image-container img {
+        width: 300px;
+        height: auto;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      x-data="{image:'', query:'', loading: false, error: null, imageFinder() {
+        if (this.query === '') return;
+            this.loading = true;
+            this.error = null;
+            fetch(
+              `https://api.unsplash.com/search/photos?query=${this.query}&client_id=Your_CLIENT_ID&per_page=1`
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.results.length > 0) {
+                  this.image = data.results[0].urls.small;
+                } else {
+                  this.error = 'No images found.';
+                  console.log(this.error);
+                }
+                this.loading = false;
+              })
+              .catch((error) => {
+                this.error = 'Something went wrong. Please try again.';
+                console.log(this.error);
+                this.loading = false;
+              });
+      }}"
+      class="search-container"
+    >
+      <form x-on:submit.prevent="imageFinder">
+        <input
+          type="text"
+          name="query"
+          x-model="query"
+          placeholder="Search for an image..."
+          class="search-input"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      <div x-show="image" class="image-container">
+        <img x-bind:src="image" style="width: 300px" />
+      </div>
+      <div x-show="loading">Loading...</div>
+      <div x-show="error" x-text="error" style="color: red"></div>
+    </div>
+  </body>
+</html>
