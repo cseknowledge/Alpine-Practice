@@ -16,7 +16,7 @@
   </head>
   <body>
     <div x-data>
-      <template <template x-for="todo in $store.todos.state.todos">
+      <template <template x-for="todo in $store.todos.todos">
         <div><span x-text="todo.title"</div>
       </template>
     </div>
@@ -28,8 +28,8 @@
         state: {
           todos: [],
         },
-        get taskCount() {
-          return this.data.tasks.length;
+        get todos() {
+          return this.state.todos;
         },
         init() {
           fetch("https://jsonplaceholder.typicode.com/todos")
