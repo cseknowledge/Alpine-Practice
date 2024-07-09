@@ -66,7 +66,10 @@
               class="border-b border-gray-200 divide-y divide-gray-200"
               x-data
             >
-              <template x-for="note in $store.notes.data" :key="note.id">
+              <template
+                x-for="note in $store.notes.orderByLastEdited"
+                :key="note.id"
+              >
                 <li
                   class="relative bg-white py-5 px-6 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
                 >
@@ -119,10 +122,13 @@
         get current() {
           return this.data.find((n) => n.id === this.currentNoteId);
         },
+        get orderByLastEdited() {
+          return this.data.sort((a, b) => b.lastEdited - a.lastEdited);
+        },
         createNote() {
           const id = Date.now();
           this.data = [
-            { id, title: "", description: "", lastEdited: 0 },
+            { id, title: "", description: "", lastEdited: Date.now() },
             ...this.data,
           ];
           currentNoteId = id;
@@ -142,7 +148,7 @@
           return this.data;
         },
         setCurrentNoteByIndex(index) {
-          this.currentNoteId = this.data[index].id;
+          this.currentNoteId = this.orderByLastEdited[index].id;
         },
         init() {
           if (this.data.length) {
