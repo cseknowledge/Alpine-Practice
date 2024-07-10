@@ -51,13 +51,16 @@
         >
           <div
             class="flex-shrink-0 h-16 bg-white px-6 flex flex-col justify-center"
+            x-data
           >
             <div class="flex justify-between space-x-3">
               <div class="flex items-baseline">
                 <h2 class="text-lg font-medium text-gray-900 mr-3">Notes</h2>
                 <p class="text-sm font-medium text-gray-500"></p>
               </div>
-              <button class="text-sm">New note</button>
+              <button class="text-sm" x-on:click="$store.notes.createNote()">
+                New note
+              </button>
             </div>
           </div>
 
