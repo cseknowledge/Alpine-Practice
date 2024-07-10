@@ -29,7 +29,7 @@
               class="text-lg font-medium text-gray-900 w-full mb-6"
               placeholder="Untitled note"
               x-model="$store.notes.current.title"
-              x-on:keyup.debounce.200="$store.notes.touchCurrentNote()"
+              x-on:keyup.debounce.200="$store.notes.touchCurrentNote(); $store.notes.persistNotes()"
             />
 
             <textarea
@@ -37,11 +37,16 @@
               placeholder="Start writing..."
               autofocus
               x-model="$store.notes.current.description"
-              x-on:keyup.debounce.200="$store.notes.touchCurrentNote()"
+              x-on:keyup.debounce.200="$store.notes.touchCurrentNote(); $store.notes.persistNotes()"
             ></textarea>
 
             <div>
-              <button class="text-sm text-gray-900">Delete note</button>
+              <button
+                class="text-sm text-gray-900"
+                x-on:click="if(window.confirm('Are you sure?')) { $store.notes.deleteNote() }"
+              >
+                Delete note
+              </button>
             </div>
           </div>
         </div>
@@ -111,20 +116,7 @@
   <script>
     document.addEventListener("alpine:init", () => {
       Alpine.store("notes", {
-        data: [
-          {
-            id: 1,
-            title: "Note Title",
-            description: "Note Description",
-            lastEdited: Date.now(),
-          },
-          {
-            id: 2,
-            title: "Another Note Title",
-            description: "Another Note Description",
-            lastEdited: Date.now(),
-          },
-        ],
+        data: JSON.parse(localStorage.getItem("notes")) || [],
         currentNoteId: null,
         get current() {
           return this.data.find((n) => n.id === this.currentNoteId);
@@ -138,11 +130,20 @@
             { id, title: "", description: "", lastEdited: Date.now() },
             ...this.data,
           ];
-          currentNoteId = id;
-          this.touchCurrentNote();
+          this.currentNoteId = id;
+          // this.touchCurrentNote();
+          this.persistNotes();
         },
         touchCurrentNote() {
           this.current.lastEdited = Date.now();
+        },
+        persistNotes() {
+          localStorage.setItem("notes", JSON.stringify(this.data));
+        },
+        deleteNote() {
+          this.data = this.data.filter((n) => n.id !== this.currentNoteId);
+          this.init();
+          this.persistNotes();
         },
         touchCurrentNoteTime(timeStamp) {
           return (
@@ -162,7 +163,7 @@
             this.setCurrentNoteByIndex(0);
           } else {
             this.createNote();
-            console.log(this.data);
+            this.setCurrentNoteByIndex(0);
           }
         },
       });
